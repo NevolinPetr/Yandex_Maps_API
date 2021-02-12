@@ -150,14 +150,11 @@ def main():
                         point = toponym['Point']['pos'].split()
                         mp.lon = float(point[0])
                         mp.lat = float(point[1])
-                        print(mp.lon, mp.lat)
                         mp.search_result = SearchResult(
                             point,
                             toponym["metaDataProperty"]["GeocoderMetaData"]["text"] if toponym else None,
                             toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code")
                             if toponym else None)
-                        print(toponym["metaDataProperty"]["GeocoderMetaData"]["text"],
-                              toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code"))
                     else:
                         input_box.text = 'Ничего не найдено'
             elif event.button == 3:  # RIGHT_MOUSE_BUTTON
@@ -170,14 +167,11 @@ def main():
                     point = toponym['Point']['pos'].split()
                     mp.lon = float(point[0])
                     mp.lat = float(point[1])
-                    print(mp.lon, mp.lat)
                     mp.search_result = SearchResult(
                         point,
                         toponym["metaDataProperty"]["GeocoderMetaData"]["text"] if toponym else None,
                         toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code")
                         if toponym else None)
-                    print(toponym["metaDataProperty"]["GeocoderMetaData"]["text"],
-                          toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code"))
                 else:
                     input_box.text = 'Ничего не найдено'
         map_file = load_map(mp)
