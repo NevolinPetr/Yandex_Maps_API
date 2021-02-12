@@ -6,9 +6,11 @@ import math
 from distance import lonlat_distance
 from geo import reverse_geocode
 from bis import find_business
-LAT_STEP = 0.008  # Шаги при движении карты по широте и долготе
+from input_box import InputBox
+from PIL import Image
+LAT_STEP = 0.008
 LON_STEP = 0.02
-coord_to_geo_x = 0.0000428  # Пропорции пиксельных и географических координат.
+coord_to_geo_x = 0.0000428
 coord_to_geo_y = 0.0000428
 
 
@@ -30,9 +32,8 @@ class SearchResult(object):
 # координаты, масштаб, найденные объекты и т.д.
 
 class MapParams(object):
-    # Параметры по умолчанию.
     def __init__(self):
-        self.lat = 55.729738  # Координаты центра карты на старте.
+        self.lat = 55.729738
         self.lon = 37.664777
         self.zoom = 15  # Масштаб карты на старте.
         self.type = "map"  # Тип карты на старте.
@@ -55,12 +56,12 @@ class MapParams(object):
             self.lat += LAT_STEP * math.pow(2, 15 - self.zoom)
         elif event.key == pygame.K_DOWN and self.lat > -85:
             self.lat -= LAT_STEP * math.pow(2, 15 - self.zoom)
-        elif event.key == 49:  # 1
-            self.type = "map"
-        elif event.key == 50:  # 2
-            self.type = "sat"
-        elif event.key == 51:  # 3
-            self.type = "sat,skl"
+        elif event.key == pygame.K_1:
+            self.type = 'map'
+        elif event.key == pygame.K_2:
+            self.type = 'sat'
+        elif event.key == pygame.K_3:
+            self.type = 'sat,skl'
         elif event.key == pygame.K_DELETE:
             self.search_result = None
         elif event.key == pygame.K_INSERT:
@@ -127,6 +128,12 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((600, 450))
     mp = MapParams()
+    input_box = InputBox(50, 10, 140, 32)
+    im = Image.open('data/search_icon.png')
+    im = im.resize((30, 30))
+    im.save('data/search_icon.png')
+    button = pygame.image.load('data/search_icon.png').convert_alpha()
+    b_rect = pygame.Rect(10, 10, 50, 50)
     while True:
         event = pygame.event.wait()
         if event.type == pygame.QUIT:  # Выход из программы
@@ -136,8 +143,43 @@ def main():
         elif event.type == pygame.MOUSEBUTTONUP:  # Выполняем поиск по клику мышки.
             if event.button == 1:  # LEFT_MOUSE_BUTTON
                 mp.add_reverse_toponym_search(event.pos)
+                if b_rect.collidepoint(event.pos):
+                    text = input_box.text
+                    toponym = reverse_geocode(text)
+                    if toponym:
+                        point = toponym['Point']['pos'].split()
+                        mp.lon = float(point[0])
+                        mp.lat = float(point[1])
+                        print(mp.lon, mp.lat)
+                        mp.search_result = SearchResult(
+                            point,
+                            toponym["metaDataProperty"]["GeocoderMetaData"]["text"] if toponym else None,
+                            toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code")
+                            if toponym else None)
+                        print(toponym["metaDataProperty"]["GeocoderMetaData"]["text"],
+                              toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code"))
+                    else:
+                        input_box.text = 'Ничего не найдено'
             elif event.button == 3:  # RIGHT_MOUSE_BUTTON
                 mp.add_reverse_org_search(event.pos)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN and input_box.active:
+                text = input_box.text
+                toponym = reverse_geocode(text)
+                if toponym:
+                    point = toponym['Point']['pos'].split()
+                    mp.lon = float(point[0])
+                    mp.lat = float(point[1])
+                    print(mp.lon, mp.lat)
+                    mp.search_result = SearchResult(
+                        point,
+                        toponym["metaDataProperty"]["GeocoderMetaData"]["text"] if toponym else None,
+                        toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code")
+                        if toponym else None)
+                    print(toponym["metaDataProperty"]["GeocoderMetaData"]["text"],
+                          toponym["metaDataProperty"]["GeocoderMetaData"]["Address"].get("postal_code"))
+                else:
+                    input_box.text = 'Ничего не найдено'
         map_file = load_map(mp)
         screen.blit(pygame.image.load(map_file), (0, 0))
         if mp.search_result:
@@ -146,6 +188,10 @@ def main():
             else:
                 text = render_text(mp.search_result.address)
             screen.blit(text, (20, 400))
+        input_box.handle_event(event)
+        input_box.update()
+        input_box.draw(screen)
+        screen.blit(button, b_rect)
         pygame.display.flip()
     pygame.quit()
     os.remove(map_file)

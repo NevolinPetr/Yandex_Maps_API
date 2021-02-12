@@ -2,7 +2,8 @@ import requests
 
 
 def reverse_geocode(ll):
-    geocoder_request_template = f'http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode={ll}&format=json'
+    apikey = '40d1649f-0493-4b70-98ba-98533de7710b'
+    geocoder_request_template = f'http://geocode-maps.yandex.ru/1.x/?apikey={apikey}&geocode={ll}&format=json'
     geocoder_request = geocoder_request_template.format(**locals())
     response = requests.get(geocoder_request)
     if not response:
