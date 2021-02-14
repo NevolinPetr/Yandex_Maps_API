@@ -36,28 +36,3 @@ class InputBox:
     def draw(self, screen):
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
         pygame.draw.rect(screen, self.color, self.rect, 2)
-
-
-def main():
-    clock = pygame.time.Clock()
-    input_box1 = InputBox(100, 100, 140, 32)
-    input_box2 = InputBox(100, 300, 140, 32)
-    input_boxes = [input_box1, input_box2]
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                break
-            for box in input_boxes:
-                box.handle_event(event)
-        for box in input_boxes:
-            box.update()
-        screen.fill((30, 30, 30))
-        for box in input_boxes:
-            box.draw(screen)
-        pygame.display.flip()
-        clock.tick(30)
-
-
-if __name__ == '__main__':
-    main()
-    pygame.quit()
