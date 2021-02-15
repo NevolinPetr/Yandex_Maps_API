@@ -136,10 +136,8 @@ def main():
     im.save('data/search_icon.png')
     button = pygame.image.load('data/search_icon.png').convert_alpha()
     b_rect = pygame.Rect(10, 10, 50, 50)
-    reset = Button('Сброс поискового результата', 455, 50, 14)
+    reset = Button('Сброс поискового результата', 350, 10, 24)
     while True:
-        screen2 = pygame.Surface(screen.get_size())
-        screen2.fill(pygame.Color('white'))
         event = pygame.event.wait()
         if event.type == pygame.QUIT:  # Выход из программы
             break
@@ -147,8 +145,7 @@ def main():
             mp.update(event)
         elif event.type == pygame.MOUSEBUTTONUP:  # Выполняем поиск по клику мышки.
             if event.button == 1:  # LEFT_MOUSE_BUTTON
-                if event.pos[0] <= 450 or event.pos[1] >= 50:
-                    mp.add_reverse_toponym_search(event.pos)
+                mp.add_reverse_toponym_search(event.pos)
                 if b_rect.collidepoint(event.pos):
                     text = input_box.text
                     toponym = reverse_geocode(text)
@@ -183,22 +180,19 @@ def main():
                 else:
                     input_box.text = 'Ничего не найдено'
         map_file = load_map(mp)
-        im = Image.open(map_file)
-        im = im.crop((0, 50, 450, 450))
-        im.save(map_file)
-        screen2.blit(pygame.image.load(map_file), (0, 50, 450, 450))
+        screen.blit(pygame.image.load(map_file), (0, 0))
         if mp.search_result:
             if mp.use_postal_code and mp.search_result.postal_code:
                 text = render_text(mp.search_result.postal_code + ", " + mp.search_result.address)
             else:
                 text = render_text(mp.search_result.address)
-            screen2.blit(text, (20, 400))
+            screen.blit(text, (20, 400))
         input_box.handle_event(event)
         input_box.update()
-        input_box.draw(screen2)
-        screen2.blit(button, b_rect)
-        reset.draw(screen2)
-        screen.blit(screen2, (0, 0))
+        input_box.draw(screen)
+        screen.blit(button, b_rect)
+        reset.draw(screen)
+        screen.blit(screen, (0, 0))
         pygame.display.flip()
     pygame.quit()
     os.remove(map_file)
