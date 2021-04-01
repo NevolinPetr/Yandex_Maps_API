@@ -16,7 +16,7 @@ coord_to_geo_y = 0.0000428
 
 
 def ll(x, y):
-    return "{0},{1}".format(x, y)
+    return f'{x},{y}'
 
 
 # Структура для хранения результатов поиска:

@@ -6,10 +6,11 @@ def find_business(ll):
     api_key = 'dda3ddba-c9ea-4ead-9010-f43fbc15c6e3'
     search_params = {
         "apikey": api_key,
+        "text": ll,
         "lang": "ru_RU",
-        "ll": ll,
-        "spn": "0.001,0.001",
         "type": "biz",
+        "ll": ll,
+        "spn": "0.005,0.005"
     }
     response = requests.get(search_api_server, params=search_params)
     if not response:
